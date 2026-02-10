@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Auto-École Excellence</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 { color: #2c3e50; margin-bottom: 10px; }
+        h2 { margin-top: 10px; }
+
+        form, .permis-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin: 20px auto;
+        }
+
+        form {
+            width: 90%;
+            max-width: 400px;
+        }
+
+        input, button, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Cartes permis */
+        .permis-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            justify-items: center;
+            display: none; /* caché au départ */
+        }
+
+        .permis-card {
+            width: 100%;
+            max-width: 220px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .permis-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .permis-card:hover { transform: scale(1.05); }
+
+        .confirmation {
+            display: none;
+            margin-top: 20px;
+            font-weight: bold;
+            color: green;
+            font-size: 18px;
+        }
+
+        @media (max-width: 500px) {
+            .permis-card img { height: 120px; }
+            h1 { font-size: 24px; }
+            h2 { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<h1><em><strong>Auto-École Excellence</strong></em></h1>
+<p>Bienvenue sur le site de notre Auto-École.</p>
+
+<!-- ================= FORMULAIRE INFOS PERSONNELLES ================= -->
+<form id="infoForm">
+    <h2>Informations personnelles</h2>
+    <input type="text" id="nom" placeholder="Nom" required>
+    <input type="text" id="prenom" placeholder="Prénom" required>
+    <input type="tel" id="telephone" placeholder="Téléphone" pattern="[0-9]{8,15}" required>
+    <input type="email" id="email" placeholder="Adresse e-mail" required>
+    <button type="submit">Suivant</button>
+</form>
+
+<!-- ================= CHOIX DU PERMIS ================= -->
+<div class="permis-container" id="choixPermis">
+    <h2>Choisissez votre type de permis</h2>
+
+    <div class="permis-card" data-permis="A" data-tarif="15000">
+        <img src="https://cdn.pixabay.com/photo/2016/11/29/03/53/motorcycle-1868411_1280.jpg" alt="Moto">
+        <p><strong>Permis A</strong><br>Deux roues</p>
+        <p>Tarif : 15 000 Fcfa</p>
+        <button onclick="choisirPermis(this)">Choisir</button>
+    </div>
+
+    <div class="permis-card" data-permis="B" data-tarif="35000">
+        <img src="https://cdn.pixabay.com/photo/2015/01/19/13/51/car-604019_1280.jpg" alt="Voiture">
+        <p><strong>Permis B</strong><br>Voitures</p>
+        <p>Tarif : 35 000 Fcfa</p>
+        <button onclick="choisirPermis(this)">Choisir</button>
+    </div>
+
+    <div class="permis-card" data-permis="C" data-tarif="50000">
+        <img src="https://cdn.pixabay.com/photo/2014/11/12/20/49/truck-528046_1280.jpg" alt="Camion">
+        <p><strong>Permis C</strong><br>Poids lourds</p>
+        <p>Tarif : 50 000 Fcfa</p>
+        <button onclick="choisirPermis(this)">Choisir</button>
+    </div>
+
+    <div class="permis-card" data-permis="D" data-tarif="70000">
+        <img src="https://cdn.pixabay.com/photo/2016/03/27/22/22/bus-1284376_1280.jpg" alt="Bus">
+        <p><strong>Permis D</strong><br>Transport de personnes</p>
+        <p>Tarif : 70 000 Fcfa</p>
+        <button onclick="choisirPermis(this)">Choisir</button>
+    </div>
+</div>
+
+<!-- ================= FORMULAIRE PAIEMENT ================= -->
+<form id="paiementForm" style="display:none;">
+    <h2>Moyens de paiement</h2>
+    <p id="infoTarif"></p>
+    <select id="paiement" required>
+        <option value="">Sélectionnez un moyen de paiement</option>
+        <option value="Espèces">Espèces</option>
+        <option value="Mobile Money">Mobile Money</option>
+        <option value="Carte Bancaire">Carte Bancaire</option>
+    </select>
+    <button type="submit">Payer</button>
+</form>
+
+<div class="confirmation" id="confirmation">
+    ✅ Inscription et paiement réussis !<br>
+    Merci d’avoir choisi <em><strong>Auto-École Excellence</strong></em>.
+</div>
+
+<script>
+    const infoForm = document.getElementById('infoForm');
+    const choixPermisDiv = document.getElementById('choixPermis');
+    const paiementForm = document.getElementById('paiementForm');
+    const infoTarif = document.getElementById('infoTarif');
+    const confirmation = document.getElementById('confirmation');
+
+    let selectedPermis = '';
+    let selectedTarif = 0;
+
+    // Étape 1 : Infos personnelles
+    infoForm.addEventListener('submit', function(e){
+        e.preventDefault();
+        infoForm.style.display = 'none';
+        choixPermisDiv.style.display = 'grid';
+    });
+
+    // Étape 2 : Choix du permis
+    function choisirPermis(button){
+        const card = button.parentElement;
+        selectedPermis = card.getAttribute('data-permis');
+        selectedTarif = card.getAttribute('data-tarif');
+
+        choixPermisDiv.style.display = 'none';
+        infoTarif.textContent = `Permis choisi : ${selectedPermis} - Tarif : ${Number(selectedTarif).toLocaleString()} Fcfa`;
+        paiementForm.style.display = 'block';
+    }
+
+    // Étape 3 : Paiement
+    paiementForm.addEventListener('submit', function(e){
+        e.preventDefault();
+        paiementForm.style.display = 'none';
+        confirmation.style.display = 'block';
+    });
+</script>
+
+</body>
+</html>
